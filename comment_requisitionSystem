@@ -1,0 +1,153 @@
+# requistion_system.py
+# It5016_A3_20250201
+# This simulation is a Requisition System whereas staff members can request requisition items.
+# Calcuates costs, and gives approval depending on the totalcost.
+
+
+# class variables (class variable shared across all object)
+class RequisitionSystem:
+
+# used counter for generating unique requisition_id 
+    requisition_counter = 1000 
+
+# using list to store all requisiton objects
+    all_requisitions = []  
+    """
+    Constructor method: runs automatically when a new requisition is made.
+    t store staff information, creates requisition ID and assigns values.
+    """
+    def __init__(self, date, staffID, name):
+# give the requisiton new ID by counting up by 1
+        RequisitionSystem.requisition_counter += 1
+# These value are different for every requisition we make
+        self.date = date
+        self.staffID = staffID
+        self.name = name
+        self.requisitionID = RequisitionSystem.requisition_counter
+        self.totalcost = 0
+        self.Approval = "Pending"
+        self.referenceName = "Not Approved"
+
+# Add this requisition into the common list of all requisitions.
+
+        RequisitionSystem.all_requisitions.append(self)
+    
+    def staff_info():
+        # # Ask the user to type in staff details (date, ID, name)
+        date = input("Enter Date : ")
+        staffID = input("Enter Staff ID: ")
+        name = input("Enter Staff Name: ")
+        return date, staffID, name
+
+    def requisitions_total(self):
+        """
+        Loop to take requisition items and costs until the user enters end.
+        Determines the overall cost of this requisition.
+        """
+        total = 0
+        while True:
+            itemName = input("Name of requisition item (or type 'end' to Exit): ")
+            if itemName.lower() == "end":
+                break
+            itemcost = int(input("Cost of product: "))
+            print(f"Item: {itemName}, Cost: {itemcost}")
+            total = total + itemcost
+        self.totalcost = total
+        print(f"Final total of requisition items: {self.totalcost}")
+
+    
+    def requisition_approval(self):
+        """
+        Automatically approve  requisitions less than 500.
+        For larger requests, keep them pending and create a reference number.
+        """
+        if self.totalcost < 500:
+            self.Approval = "Approved"
+            self.referenceName = "N/A"
+        else:
+            self.Approval = "Pending"
+            # Reference number = staff ID + last 3 digits of requisition ID
+            self.referenceName = self.staffID + str(self.requisitionID)[-3:]
+
+    
+    def respond_requisition(self, decision):
+        """
+        Allows a manually approve or reject a pending requisition.
+        """
+        if self.Approval == "Pending":
+            if decision.lower() == "approved":
+                self.Approval = "Approved"
+            elif decision.lower() == "Pending":
+                self.Approval = "Not Approved"
+
+    
+    def display_requisitions():
+        """
+        Print all requisitions that have been created,
+        including details like Date,  Requisition ID, staff ID, Staff Name, Total, approval.
+        """
+
+        print("\nPrinting Requisitions:")
+        for i in RequisitionSystem.all_requisitions:
+            print(f"\nDate: {i.date}")
+            print(f"Requisition ID: {i.requisitionID}")
+            print(f"Staff ID: {i.staffID}")
+            print(f"Staff Name: {i.name}")
+            print(f"Total: ${i.totalcost}")
+            print(f" Approval: {i.Approval}")
+            print(f"Approval Reference Number: {i.referenceName}")
+
+
+    def requisition_statistic():
+        """
+        Count how many requisitions are approved, pending, or not approved,
+        and display them.
+        """
+        total = len(RequisitionSystem.all_requisitions)
+        approved = 0 
+        pending = 0 
+        not_approved = 0
+        
+        for i in RequisitionSystem.all_requisitions:
+            if i.Approval =="Approved":
+                    approved += 1
+            elif i.Approval =="Pending":
+                pending += 1
+            elif i.Approval == "Not approved":
+                not_approved += 1
+
+# print Statistics
+        print("\nStatistics:")
+        print("Displaying the Requisition Statistics")
+        print(f"The total number of requisitions submitted: {total}")
+        print(f"The total number of approved requisitions: {approved}")
+        print(f"The total number of pending requisitions: {pending}")
+        print(f"The total number of not approved requisitions: {not_approved}")
+
+
+
+# Ask the user how many requisitions they want to create
+num = int(input("How many requisitions would you like to make? "))
+
+for i in range (num):
+    print(f"\n--- Creating Requisition  ---")
+    # Gathers staff information like date, staffID, name
+    date, staffID, name = RequisitionSystem.staff_info()
+    i = RequisitionSystem(date, staffID, name)
+    # let the user add requisition item and their cost.
+    total = 0
+    while True:
+        itemName = input("Name of requisition item (or type 'end' to exit): ")
+        if itemName.lower() == "end":
+            break
+        itemCost = int(input("Enter item cost: "))
+        print(f"Item: {itemName}, Cost: {itemCost}")
+        total = total + itemCost
+    i.totalcost = total
+    # checks if the requisition approved
+    i.requisition_approval()
+
+# displays all requisition
+RequisitionSystem.display_requisitions()
+# display the requisition statistics
+RequisitionSystem.requisition_statistic()
